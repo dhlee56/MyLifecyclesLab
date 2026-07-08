@@ -1,4 +1,4 @@
-package com.example.android.lifecycleslab
+package com.example.android.lifecycleslab.step2
 
 import androidx.lifecycle.ViewModel
 

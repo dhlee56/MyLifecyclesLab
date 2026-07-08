@@ -1,4 +1,4 @@
-package com.example.android.lifecycleslab.ui.theme
+package com.example.android.lifecycleslab.step2.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
