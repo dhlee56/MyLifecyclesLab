@@ -13,11 +13,18 @@ class LocationViewModel: ViewModel() {
     val _permissionsCheck: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val permissionsCheck: StateFlow<Boolean> = _permissionsCheck
 
+    val _showRationale: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val showRationale: StateFlow<Boolean> = _showRationale
+
     fun setPermissionsCheck(check: Boolean) {
         _permissionsCheck.value = check
     }
 
     fun saveLocation(location: Location) {
         _mLocation.value  = location
+    }
+
+    fun setShowRationale(show: Boolean) {
+        _showRationale.value = show
     }
 }

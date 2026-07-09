@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -45,12 +46,20 @@ class LocationActivity : ComponentActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        val showRationale =
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+                //Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+
         if (grantResults.size > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
             bindLocationListener()
             viewModel.setPermissionsCheck(true)
             Log.d("BoundLocationMgr", "Permission granted")
             //Toast.makeText(this, "Restart the app", Toast.LENGTH_LONG).show()
         } else {
+            if( showRationale) Log.d("BoundLocationMgr", "Show rationale ${showRationale}")
             Log.d("BoundLocationMgr", "Permission denied @ result")
             Toast.makeText(this, "This sample requires Location access", Toast.LENGTH_LONG).show()
         }
@@ -93,6 +102,7 @@ class LocationActivity : ComponentActivity() {
                 ) { innerPadding ->
                     val mLocation by viewModel.mLocation.collectAsState()
                     val permissionsCheck by viewModel.permissionsCheck.collectAsState()
+                    val showRationale by viewModel.showRationale.collectAsState()
                     Column(
                         modifier = Modifier
                             .padding(innerPadding)
@@ -105,12 +115,22 @@ class LocationActivity : ComponentActivity() {
                             Text(" Hello World!")
                             Text(" ${mLocation.latitude}, ${mLocation.longitude}")
                         } else {
-                            Text("This app requires Location access")
+                            Text("This app requires Location access ${showRationale}")
                         }
 
                     }
                 }
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("BoundLocationMgr", "Resumed")
+        if (checkPermissions()) {
+            viewModel.setPermissionsCheck(true)
+        } else {
+            viewModel.setPermissionsCheck(false)
         }
     }
     inner class MyLocationListener : LocationListener {
