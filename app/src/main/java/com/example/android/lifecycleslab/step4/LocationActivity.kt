@@ -53,11 +53,13 @@ class LocationActivity : ComponentActivity() {
                 //Manifest.permission.READ_EXTERNAL_STORAGE
             )
 
-        if (grantResults.size > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-            bindLocationListener()
-            viewModel.setPermissionsCheck(true)
-            Log.d("BoundLocationMgr", "Permission granted")
-            //Toast.makeText(this, "Restart the app", Toast.LENGTH_LONG).show()
+        if (grantResults.size > 1
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                //bindLocationListener()
+                viewModel.setPermissionsCheck(true)
+                Log.d("BoundLocationMgr", "Permission granted")
+                //Toast.makeText(this, "Restart the app", Toast.LENGTH_LONG).show()
         } else {
             if( showRationale) Log.d("BoundLocationMgr", "Show rationale ${showRationale}")
             Log.d("BoundLocationMgr", "Permission denied @ result")
@@ -76,22 +78,29 @@ class LocationActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (!checkPermissions()) {
-            Log.d("BoundLocationMgr", "Request Permissions")
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf<String>(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
-                REQUEST_LOCATION_PERMISSION_CODE
-            )
-        } else {
-            bindLocationListener()
-        }
+
         enableEdgeToEdge()
         setContent {
             AndroidLifecyclesLabTheme {
+                val mLocation by viewModel.mLocation.collectAsState()
+                val permissionsCheck by viewModel.permissionsCheck.collectAsState()
+                val showRationale by viewModel.showRationale.collectAsState()
+                LaunchedEffect(permissionsCheck) {
+                    if (!permissionsCheck) {
+                        Log.d("BoundLocationMgr", "Request Permissions")
+                        ActivityCompat.requestPermissions(
+                            this@LocationActivity,
+                            arrayOf<String>(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            ),
+                            REQUEST_LOCATION_PERMISSION_CODE
+                        )
+                    } else {
+                        bindLocationListener()
+                    }
+                }
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -100,9 +109,7 @@ class LocationActivity : ComponentActivity() {
                         )
                     },
                 ) { innerPadding ->
-                    val mLocation by viewModel.mLocation.collectAsState()
-                    val permissionsCheck by viewModel.permissionsCheck.collectAsState()
-                    val showRationale by viewModel.showRationale.collectAsState()
+
                     Column(
                         modifier = Modifier
                             .padding(innerPadding)
